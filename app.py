@@ -25,12 +25,13 @@ def chat(message, history):
     history.append((message, response))
     return history, history
 
-chatbot = gr.Chatbot().style(color_map=("gray", "pink"))
+chatbot = gr.Chatbot().style(color_map=("green", "gray"))
 demo = gr.Interface(
     chat,
     ["text", "state"],
     [chatbot, "state"],
     allow_flagging="never",
+    live=True
 )
 
 demo.launch(debug = True)
