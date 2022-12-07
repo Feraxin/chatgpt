@@ -73,6 +73,8 @@ start_work = """async() => {
         page1.style.display = "none";
         page2.style.display = "block"; 
 
+        window['gradioEl'].querySelectorAll('#component-0')[0].style.display = "none";
+
         window['div_count'] = 0;
         window['chat_bot'] = window['gradioEl'].querySelectorAll('#chat_bot')[0];
         window['chat_bot1'] = window['gradioEl'].querySelectorAll('#chat_bot1')[0];   
@@ -81,7 +83,7 @@ start_work = """async() => {
         window['chat_bot1'].children[1].textContent = '';
         
         clientHeight = getClientHeight();
-        new_height = (clientHeight-300) + 'px';
+        new_height = (clientHeight-200) + 'px';
         chat_row.style.height = new_height;
         window['chat_bot'].style.height = new_height;
         window['chat_bot'].children[2].style.height = new_height;
