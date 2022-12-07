@@ -72,7 +72,8 @@ start_work = """async() => {
     
         page1.style.display = "none";
         page2.style.display = "block";
-        window['gradioEl'].querySelectorAll('#component-0')[0].style.display = "none";
+        window['gradioEl'].querySelectorAll('#component-1')[0].style.display = "none";
+        window['gradioEl'].querySelectorAll('#component-2')[0].style.display = "none";
 
         window['div_count'] = 0;
         window['chat_bot'] = window['gradioEl'].querySelectorAll('#chat_bot')[0];
