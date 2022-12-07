@@ -81,7 +81,7 @@ start_work = """async() => {
         window['chat_bot1'].children[1].textContent = '';
         
         clientHeight = getClientHeight();
-        new_height = (clientHeight-200) + 'px';
+        new_height = (clientHeight-300) + 'px';
         chat_row.style.height = new_height;
         window['chat_bot'].style.height = new_height;
         window['chat_bot'].children[2].style.height = new_height;
