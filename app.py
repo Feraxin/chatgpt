@@ -14,7 +14,7 @@ def read_token():
 def chat(text,session_tokenz):
 
     try:
-      loaded_session_token = os.environ['Newkeyz']
+      //loaded_session_token = os.environ['Newkeyz']
       
       session_token = read_token()
       
@@ -37,10 +37,9 @@ def chat(text,session_tokenz):
 
  
 import gradio as gr
-gr.Interface(
-             chat,
-              [gr.Textbox(label = ' 输入问题： '),
+gr.Interface(chat,
+              inputs = [gr.Textbox(label = ' 输入问题： '),
                gr.Textbox(label = ' 如果失败，你可以填写自己的session-token')], 
-                        outputs = gr.outputs.Textbox(type="text",label="ChatGPT 回复你了："), 
-                        title = "ChatGPT 中文",
-                        description= "").launch(debug = True)
+               outputs = gr.outputs.Textbox(type="text",label="ChatGPT 回复你了："), 
+               title = "ChatGPT 中文",
+               description= "").launch(debug = True)
