@@ -31,7 +31,6 @@ demo = gr.Interface(
     ["text", "state"],
     [chatbot, "state"],
     allow_flagging="never",
-    live=True
 )
 
 demo.launch(debug = True)
