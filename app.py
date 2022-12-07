@@ -33,7 +33,8 @@ def chat(message, chat_history):
 with gr.Blocks(title='chat with chatgpt') as demo:
     with gr.Group(elem_id="page_1", visible=True) as page_1:
         with gr.Row(elem_id="prompt_row"):
-            chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "gray"))   
+            chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "blue"))
+            chatbot1 = gr.Chatbot(elem_id="chat_bot1").style(color_map=("green", "blue"))
         with gr.Row():
             prompt_input0 = gr.Textbox(lines=1, label="prompt",show_label=False)
             chat_history = gr.Textbox(lines=4, label="prompt", visible=False)
