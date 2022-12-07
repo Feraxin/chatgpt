@@ -53,7 +53,7 @@ def chat(message, chat_history):
     # if chat_history != '':
     #     chat_history += split_mark_1
     # chat_history += f'{message}{split_mark_2}{response}'
-    chat_history = json.dump(out_chat)
+    chat_history = json.dumps(out_chat)
     print(f'liuyz_2_{chat_history}')
     return out_chat, chat_history
     
