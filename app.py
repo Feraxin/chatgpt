@@ -19,12 +19,22 @@ def get_response_from_chatbot(text):
       response = "Sorry, I'm am tired."
     return response
     
-def chat(message, history):
-    history = history or []
-    response = get_response_from_chatbot(message)
-    history.append((message, response))
-    return history, history
+# def chat(message, history):    
+#     history = history or []
+#     response = get_response_from_chatbot(message)
+#     history.append((message, response))
+#     return history, history
 
+def chat(message, chat_history):  
+    split_mark = 'CHCHCHCHCHCH'
+    if chat_history == '':
+        chat_history = []
+    else:
+        chat_history = chat_history.split(split_mark)
+    response = get_response_from_chatbot(message)
+    chat_history.append((message, response))
+    return chat_history, split_mark.join(chat_history)
+    
 start_work = """async() => {
     function isMobile() {
         try {
@@ -127,16 +137,17 @@ with gr.Blocks(title='Text to Image') as demo:
 
     with gr.Group(elem_id="page_2", visible=False) as page_2: 
             with gr.Row(elem_id="prompt_row"):
-                chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "gray"))
-                prompt_input0 = gr.Textbox(lines=4, label="prompt")
+                chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "gray"))                
             with gr.Row():
+                prompt_input0 = gr.Textbox(lines=2, label="prompt")
+                chat_history = gr.Textbox(lines=2, label="prompt", visible=False)
                 submit_btn = gr.Button(value = "submit",elem_id="erase-btn").style(
                         margin=True,
                         rounded=(True, True, True, True),
                     )
                 submit_btn.click(fn=chat, 
-                                 inputs=[prompt_input0, "state"], 
-                                 outputs=[chatbot, "state"],
+                                 inputs=[prompt_input0, chat_history], 
+                                 outputs=[chatbot, chat_history],
                                 )
                 
         # chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "gray"))
