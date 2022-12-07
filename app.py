@@ -71,8 +71,7 @@ start_work = """async() => {
         const page2 = window['gradioEl'].querySelectorAll('#page_2')[0]; 
     
         page1.style.display = "none";
-        page2.style.display = "block"; 
-
+        page2.style.display = "block";
         window['gradioEl'].querySelectorAll('#component-0')[0].style.display = "none";
 
         window['div_count'] = 0;
