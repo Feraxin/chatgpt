@@ -14,7 +14,7 @@ def get_response_from_chatbot(text):
       api.refresh_auth() 
       api.reset_conversation() 
       response = resp['message']
-      logger.info(f"response_: {response}")
+      # logger.info(f"response_: {response}")
     except:
       response = "Sorry, I'm am tired."
     return response
@@ -107,12 +107,12 @@ with gr.Blocks(title='chat with chatgpt') as demo:
     with gr.Group(elem_id="page_1", visible=True) as page_1:
         with gr.Box():            
             with gr.Row():
-                start_button = gr.Button("Let's GO!", elem_id="start-btn", visible=True) 
+                start_button = gr.Button("Let's talk to chatGPT!", elem_id="start-btn", visible=True) 
                 start_button.click(fn=None, inputs=[], outputs=[], _js=start_work)
                 
     with gr.Group(elem_id="page_2", visible=False) as page_2:        
         with gr.Row(elem_id="prompt_row"):
-            chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "blue"))
+            chatbot = gr.Chatbot(elem_id="chat_bot", visible=False).style(color_map=("green", "blue"))
             chatbot1 = gr.Chatbot(elem_id="chat_bot1").style(color_map=("green", "blue"))
         with gr.Row():
             prompt_input0 = gr.Textbox(lines=1, label="prompt",show_label=False)
