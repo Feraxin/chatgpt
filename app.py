@@ -46,7 +46,7 @@ def chat1(message, chat_history):
 def chat(message, chat_history):  
     out_chat = []
     if chat_history != '':
-        out_chat = json.load(chat_history)
+        out_chat = json.loads(chat_history)
     print(f'liuyz_1_{chat_history}')
     response = get_response_from_chatbot(message)
     out_chat.append((message, response))
