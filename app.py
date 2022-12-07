@@ -126,7 +126,21 @@ with gr.Blocks(title='Text to Image') as demo:
                 start_button.click(fn=None, inputs=[], outputs=[], _js=start_work)
 
     with gr.Group(elem_id="page_2", visible=False) as page_2: 
-        chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "gray"))
+            with gr.Row(elem_id="prompt_row"):
+                chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "gray"))
+                prompt_input0 = gr.Textbox(lines=4, label="prompt")
+            with gr.Row():
+                submit_btn = gr.Button(value = "submit",elem_id="erase-btn").style(
+                        margin=True,
+                        rounded=(True, True, True, True),
+                    )
+                submit_btn.click(fn=chat, 
+                                 inputs=[prompt_input0, "state"], 
+                                 outputs=[chatbot, "state"],
+                                )
+                
+        # chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "gray"))
+        # prompt_input0 = gr.Textbox(lines=4, label="prompt")
         # chatbot.change(chat,
         #             ["text", "state"],
         #             [chatbot, "state"],
