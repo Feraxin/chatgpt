@@ -87,13 +87,12 @@ start_work = """async() => {
                     }
                     window['div_count'] = chat_bot.children[2].children[0].children.length;
                 }
-                for (var i = 0; i < window['chat_bot1'].children[0].children.length; i++) {
-                    window['chat_bot1'].children[0].removeChild(window['chat_bot1'].children[0].children[i]);
+                if (window['chat_bot'].children[0].children.length > 1) {
+                     window['chat_bot'].children[1].textContent = window['chat_bot'].children[0].children[1].textContent;
+                } else {
+                    window['chat_bot'].children[1].textContent = '';
                 }
-                for (var i = 0; i < window['chat_bot'].children[0].children.length; i++) {
-                    new_div = window['chat_bot'].children[0].children[i].cloneNode(true);
-                    window['chat_bot1'].children[0].appendChild(new_div);
-                }                
+              
             } catch(e) {
             }        
         }
