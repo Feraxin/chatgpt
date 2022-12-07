@@ -2,6 +2,7 @@ from pyChatGPT import ChatGPT
 import gradio as gr
 import os
 from loguru import logger
+import random
 
 session_token = os.environ.get('SessionToken')      
 logger.info(f"session_token_: {session_token}")
