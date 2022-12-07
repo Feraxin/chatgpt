@@ -26,13 +26,22 @@ def get_response_from_chatbot(text):
 #     return history, history
 
 def chat(message, chat_history):  
-    split_mark = 'CHCHCHCHCHCH'
-    chat_history = chat_history.split(split_mark)
+    split_mark_1 = ',,,,,,,,,,;'
+    split_mark_2 = ';;;;;;;;;;;'
+    out_chat = []
+    if chat_history != '':
+        ss0 = chat_history.split(split_mark_1)
+        for ss1 in ss0:
+            ss2 = ss1.split(split_mark_2)
+            out_chat.append((ss2[0], ss2[1]))
     print(f'liuyz_1_{chat_history}')
     response = get_response_from_chatbot(message)
-    chat_history.append((message, response))
+    out_chat.append((message, response))
+    if chat_history != '':
+        chat_history += split_mark_1
+    chat_history += f'{message}{split_mark_2}{response}'
     print(f'liuyz_2_{chat_history}')
-    return chat_history, split_mark.join(chat_history)
+    return out_chat, chat_history
     
 start_work = """async() => {
     function isMobile() {
@@ -139,7 +148,7 @@ with gr.Blocks(title='Text to Image') as demo:
                 chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "gray"))                
             with gr.Row():
                 prompt_input0 = gr.Textbox(lines=2, label="prompt")
-                chat_history = gr.Textbox(lines=2, label="prompt", visible=False)
+                chat_history = gr.Textbox(lines=4, label="prompt", visible=True)
                 submit_btn = gr.Button(value = "submit",elem_id="erase-btn").style(
                         margin=True,
                         rounded=(True, True, True, True),
