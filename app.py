@@ -116,7 +116,7 @@ with gr.Blocks(title='chat with chatgpt') as demo:
             chatbot = gr.Chatbot(elem_id="chat_bot", visible=False).style(color_map=("green", "blue"))
             chatbot1 = gr.Chatbot(elem_id="chat_bot1").style(color_map=("green", "blue"))
         with gr.Row():
-            prompt_input0 = gr.Textbox(lines=1, label="prompt",show_label=False)
+            prompt_input = gr.Textbox(lines=1, label="prompt",show_label=False)
             chat_history = gr.Textbox(lines=4, label="prompt", visible=False)
             submit_btn = gr.Button(value = "submit",elem_id="submit-btn").style(
                     margin=True,
@@ -124,7 +124,7 @@ with gr.Blocks(title='chat with chatgpt') as demo:
                     width=100
                 )
             submit_btn.click(fn=chat, 
-                             inputs=[prompt_input0, chat_history], 
+                             inputs=[prompt_input, chat_history], 
                              outputs=[chatbot, chat_history],
                             )
 
