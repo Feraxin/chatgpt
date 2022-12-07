@@ -59,55 +59,60 @@ start_work = """async() => {
     if (!gradioEl) {
         gradioEl = document.querySelector('body > gradio-app');
     }
-    
+    console.log('liuyz_1_')
     if (typeof window['gradioEl'] === 'undefined') {
+        console.log('liuyz_2_')
         window['gradioEl'] = gradioEl;
-        
-        # tabitems = window['gradioEl'].querySelectorAll('.tabitem');
-        # for (var i = 0; i < tabitems.length; i++) {    
-        #     tabitems[i].childNodes[0].children[0].style.display='none';
-        #     tabitems[i].childNodes[0].children[1].children[0].style.display='none';
-        #     tabitems[i].childNodes[0].children[1].children[1].children[0].children[1].style.display="none"; 
-        # }    
-        # tab_demo = window['gradioEl'].querySelectorAll('#tab_demo')[0];
-        # tab_demo.style.display = "block";
-        # tab_demo.setAttribute('style', 'height: 100%;');
+        /*
+        tabitems = window['gradioEl'].querySelectorAll('.tabitem');
+        for (var i = 0; i < tabitems.length; i++) {    
+            tabitems[i].childNodes[0].children[0].style.display='none';
+            tabitems[i].childNodes[0].children[1].children[0].style.display='none';
+            tabitems[i].childNodes[0].children[1].children[1].children[0].children[1].style.display="none"; 
+        }    
+        tab_demo = window['gradioEl'].querySelectorAll('#tab_demo')[0];
+        tab_demo.style.display = "block";
+        tab_demo.setAttribute('style', 'height: 100%;');
+        */
         
         const page1 = window['gradioEl'].querySelectorAll('#page_1')[0];
         const page2 = window['gradioEl'].querySelectorAll('#page_2')[0]; 
-    
+        console.log('liuyz_3_')
         page1.style.display = "none";
         page2.style.display = "block";    
-        
-    #     window['prevPrompt'] = '';
-    #     window['doCheckPrompt'] = 0;
-    #     window['checkPrompt'] = function checkPrompt() {
-    #         try {
-    #                 texts = window['gradioEl'].querySelectorAll('textarea');
-    #                 text0 = texts[0];    
-    #                 text1 = texts[1];
-    #                 if (window['doCheckPrompt'] === 0 && window['prevPrompt'] !== text1.value) {
-    #                         console.log('_____new prompt___[' + text1.value + ']_');
-    #                         window['doCheckPrompt'] = 1;
-    #                         window['prevPrompt'] = text1.value;
-    #                         for (var i = 2; i < texts.length; i++) {
-    #                             setNativeValue(texts[i], text1.value);
-    #                             texts[i].dispatchEvent(new Event('input', { bubbles: true }));
-    #                         }                        
-    #                         setTimeout(function() {
-    #                             btns = window['gradioEl'].querySelectorAll('button');
-    #                             for (var i = 0; i < btns.length; i++) {
-    #                                 if (btns[i].innerText == 'Submit') {
-    #                                     btns[i].click();                
-    #                                 }
-    #                             }
-    #                             window['doCheckPrompt'] = 0;
-    #                         }, 10);                   
-    #                 }
-    #         } catch(e) {
-    #         }        
-    #     }
-    #     window['checkPrompt_interval'] = window.setInterval("window.checkPrompt()", 100);         
+        console.log('liuyz_4_')
+
+        /*
+        window['prevPrompt'] = '';
+        window['doCheckPrompt'] = 0;
+        window['checkPrompt'] = function checkPrompt() {
+            try {
+                    texts = window['gradioEl'].querySelectorAll('textarea');
+                    text0 = texts[0];    
+                    text1 = texts[1];
+                    if (window['doCheckPrompt'] === 0 && window['prevPrompt'] !== text1.value) {
+                            console.log('_____new prompt___[' + text1.value + ']_');
+                            window['doCheckPrompt'] = 1;
+                            window['prevPrompt'] = text1.value;
+                            for (var i = 2; i < texts.length; i++) {
+                                setNativeValue(texts[i], text1.value);
+                                texts[i].dispatchEvent(new Event('input', { bubbles: true }));
+                            }                        
+                            setTimeout(function() {
+                                btns = window['gradioEl'].querySelectorAll('button');
+                                for (var i = 0; i < btns.length; i++) {
+                                    if (btns[i].innerText == 'Submit') {
+                                        btns[i].click();                
+                                    }
+                                }
+                                window['doCheckPrompt'] = 0;
+                            }, 10);                   
+                    }
+            } catch(e) {
+            }        
+        }
+        window['checkPrompt_interval'] = window.setInterval("window.checkPrompt()", 100);  
+        */
     }
    
     return false;
