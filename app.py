@@ -88,9 +88,9 @@ start_work = """async() => {
                     window['div_count'] = chat_bot.children[2].children[0].children.length;
                 }
                 if (window['chat_bot'].children[0].children.length > 1) {
-                     window['chat_bot'].children[1].textContent = window['chat_bot'].children[0].children[1].textContent;
+                     window['chat_bot1'].children[1].textContent = window['chat_bot'].children[0].children[1].textContent;
                 } else {
-                    window['chat_bot'].children[1].textContent = '';
+                    window['chat_bot1'].children[1].textContent = '';
                 }
               
             } catch(e) {
