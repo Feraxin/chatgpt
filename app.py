@@ -80,9 +80,13 @@ start_work = """async() => {
         window['chat_bot1'].children[1].textContent = '';
         
         clientHeight = getClientHeight();
-        chat_row.style.height = (clientHeight-150) + 'px';
-        window['chat_bot'].style.height = (clientHeight-150) + 'px';
-        window['chat_bot1'].style.height = (clientHeight-150) + 'px';
+        new_height = (clientHeight-150) + 'px';
+        chat_row.style.height = new_height;
+        window['chat_bot'].style.height = new_height;
+        window['chat_bot'].children[2].style.height = new_height;
+        window['chat_bot1'].style.height = new_height;
+        window['chat_bot1'].children[2].style.height = new_height;
+        
         window['checkChange'] = function checkChange() {
             try {
                 if (window['chat_bot'].children[2].children[0].children.length > window['div_count']) {
