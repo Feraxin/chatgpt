@@ -109,7 +109,7 @@ start_work = """async() => {
 }"""
 
 
-with gr.Blocks(title='chat with chatgpt') as demo:
+with gr.Blocks(title='Talk to chatGPT') as demo:
     with gr.Group(elem_id="page_1", visible=True) as page_1:
         with gr.Box():            
             with gr.Row():
