@@ -63,20 +63,22 @@ start_work = """async() => {
     if (typeof window['gradioEl'] === 'undefined') {
         window['gradioEl'] = gradioEl;
         
-        tabitems = window['gradioEl'].querySelectorAll('.tabitem');
-        for (var i = 0; i < tabitems.length; i++) {    
-            tabitems[i].childNodes[0].children[0].style.display='none';
-            tabitems[i].childNodes[0].children[1].children[0].style.display='none';
-            tabitems[i].childNodes[0].children[1].children[1].children[0].children[1].style.display="none"; 
-        }    
-        tab_demo = window['gradioEl'].querySelectorAll('#tab_demo')[0];
-        tab_demo.style.display = "block";
-        tab_demo.setAttribute('style', 'height: 100%;');
+        # tabitems = window['gradioEl'].querySelectorAll('.tabitem');
+        # for (var i = 0; i < tabitems.length; i++) {    
+        #     tabitems[i].childNodes[0].children[0].style.display='none';
+        #     tabitems[i].childNodes[0].children[1].children[0].style.display='none';
+        #     tabitems[i].childNodes[0].children[1].children[1].children[0].children[1].style.display="none"; 
+        # }    
+        # tab_demo = window['gradioEl'].querySelectorAll('#tab_demo')[0];
+        # tab_demo.style.display = "block";
+        # tab_demo.setAttribute('style', 'height: 100%;');
+        
         const page1 = window['gradioEl'].querySelectorAll('#page_1')[0];
         const page2 = window['gradioEl'].querySelectorAll('#page_2')[0]; 
     
         page1.style.display = "none";
         page2.style.display = "block";    
+        
     #     window['prevPrompt'] = '';
     #     window['doCheckPrompt'] = 0;
     #     window['checkPrompt'] = function checkPrompt() {
@@ -106,7 +108,7 @@ start_work = """async() => {
     #         }        
     #     }
     #     window['checkPrompt_interval'] = window.setInterval("window.checkPrompt()", 100);         
-    # }
+    }
    
     return false;
 }"""
