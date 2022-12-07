@@ -145,13 +145,15 @@ with gr.Blocks(title='Text to Image') as demo:
 
     # with gr.Group(elem_id="page_2", visible=False) as page_2: 
             with gr.Row(elem_id="prompt_row"):
-                chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "gray"))                
+                chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "gray"))   
+                chatbot.change(None, show_progress=False)
             with gr.Row():
-                prompt_input0 = gr.Textbox(lines=2, label="prompt")
-                chat_history = gr.Textbox(lines=4, label="prompt", visible=True)
-                submit_btn = gr.Button(value = "submit",elem_id="erase-btn").style(
+                prompt_input0 = gr.Textbox(lines=1, label="prompt",show_label=False)
+                chat_history = gr.Textbox(lines=4, label="prompt", visible=False)
+                submit_btn = gr.Button(value = "submit",elem_id="submit-btn").style(
                         margin=True,
                         rounded=(True, True, True, True),
+                        width=100
                     )
                 submit_btn.click(fn=chat, 
                                  inputs=[prompt_input0, chat_history], 
