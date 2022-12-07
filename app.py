@@ -5,6 +5,7 @@ from loguru import logger
 def chat(text):
     try:
       session_token = os.environ.get('SessionToken')      
+      logger.info(f"session_token_: {session_token}")
       api = ChatGPT(session_token) 
       resp = api.send_message(text)    
       api.refresh_auth() 
