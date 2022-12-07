@@ -14,7 +14,7 @@ def read_token():
 def chat(text,session_tokenz):
 
     try:
-      //loaded_session_token = os.environ['Newkeyz']
+      # loaded_session_token = os.environ['Newkeyz']
       
       session_token = read_token()
       
