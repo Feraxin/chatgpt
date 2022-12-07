@@ -111,32 +111,38 @@ start_work = """async() => {
     return false;
 }"""
 
-# with gr.Blocks(title='Text to Image') as demo:
-#     with gr.Group(elem_id="page_1", visible=True) as page_1:
-#         with gr.Box():            
-#             with gr.Row():
-#                 start_button = gr.Button("Let's GO!", elem_id="start-btn", visible=True) 
-#                 start_button.click(fn=None, inputs=[], outputs=[], _js=start_work)
+with gr.Blocks(title='Text to Image') as demo:
+    with gr.Group(elem_id="page_1", visible=True) as page_1:
+        with gr.Box():            
+            with gr.Row():
+                start_button = gr.Button("Let's GO!", elem_id="start-btn", visible=True) 
+                start_button.click(fn=None, inputs=[], outputs=[], _js=start_work)
 
-#     with gr.Group(elem_id="page_2", visible=False) as page_2: 
-#         chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "gray"))
-#         chat_demo = gr.Interface(
-#             chat,
-#             ["text", "state"],
-#             [chatbot, "state"],
-#             allow_flagging="never",
-#             show_label=False,
-#         )
+    with gr.Group(elem_id="page_2", visible=False) as page_2: 
+        chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "gray"))
+        chatbot.change(chat,
+                    ["text", "state"],
+                    [chatbot, "state"],
+                    allow_flagging="never",
+                    show_label=False,                       
+                    show_progress=False)
+        # chat_demo = gr.Interface(
+        #     chat,
+        #     ["text", "state"],
+        #     [chatbot, "state"],
+        #     allow_flagging="never",
+        #     show_label=False,
+        # )
         
-chatbot = gr.Chatbot().style(color_map=("green", "gray"))
-chatbot.change(show_progress=False)
+# chatbot = gr.Chatbot().style(color_map=("green", "gray"))
+# chatbot.change(show_progress=False)
 
-demo = gr.Interface(
-    chat,
-    ["text", "state"],
-    [chatbot, "state"],
-    allow_flagging="never",
-    show_label=False,
-)
+# demo = gr.Interface(
+#     chat,
+#     ["text", "state"],
+#     [chatbot, "state"],
+#     allow_flagging="never",
+#     show_label=False,
+# )
 
 demo.launch(debug = True)
