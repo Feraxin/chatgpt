@@ -87,8 +87,8 @@ start_work = """async() => {
         window['chat_bot'].children[2].style.height = new_height;
         window['chat_bot1'].style.height = new_height;
         window['chat_bot1'].children[2].style.height = new_height;
-        prompt_row,children[0].style.width = '100%';
-        prompt_row,children[0].style.flex = 'auto';
+        prompt_row.children[0].style.flex = 'auto';
+        prompt_row.children[0].style.width = '100%';
         
         window['checkChange'] = function checkChange() {
             try {
