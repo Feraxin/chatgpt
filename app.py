@@ -27,12 +27,11 @@ def get_response_from_chatbot(text):
 
 def chat(message, chat_history):  
     split_mark = 'CHCHCHCHCHCH'
-    if chat_history == '':
-        chat_history = []
-    else:
-        chat_history = chat_history.split(split_mark)
+    chat_history = chat_history.split(split_mark)
+    print(f'liuyz_1_{chat_history}')
     response = get_response_from_chatbot(message)
     chat_history.append((message, response))
+    print(f'liuyz_2_{chat_history}')
     return chat_history, split_mark.join(chat_history)
     
 start_work = """async() => {
@@ -130,12 +129,12 @@ start_work = """async() => {
 
 with gr.Blocks(title='Text to Image') as demo:
     with gr.Group(elem_id="page_1", visible=True) as page_1:
-        with gr.Box():            
-            with gr.Row():
-                start_button = gr.Button("Let's GO!", elem_id="start-btn", visible=True) 
-                start_button.click(fn=None, inputs=[], outputs=[], _js=start_work)
+    #     with gr.Box():            
+    #         with gr.Row():
+    #             start_button = gr.Button("Let's GO!", elem_id="start-btn", visible=True) 
+    #             start_button.click(fn=None, inputs=[], outputs=[], _js=start_work)
 
-    with gr.Group(elem_id="page_2", visible=False) as page_2: 
+    # with gr.Group(elem_id="page_2", visible=False) as page_2: 
             with gr.Row(elem_id="prompt_row"):
                 chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "gray"))                
             with gr.Row():
