@@ -1,6 +1,6 @@
 from pyChatGPT import ChatGPT
 import gradio as gr
-import os
+import os, json
 from loguru import logger
 import random
 
@@ -25,7 +25,7 @@ def get_response_from_chatbot(text):
 #     history.append((message, response))
 #     return history, history
 
-def chat(message, chat_history):  
+def chat1(message, chat_history):  
     split_mark_1 = ',,,,,,,,,,;'
     split_mark_2 = ';;;;;;;;;;;'
     out_chat = []
@@ -40,6 +40,20 @@ def chat(message, chat_history):
     if chat_history != '':
         chat_history += split_mark_1
     chat_history += f'{message}{split_mark_2}{response}'
+    print(f'liuyz_2_{chat_history}')
+    return out_chat, chat_history
+
+def chat(message, chat_history):  
+    out_chat = []
+    if chat_history != '':
+        out_chat = json.load(chat_history)
+    print(f'liuyz_1_{chat_history}')
+    response = get_response_from_chatbot(message)
+    out_chat.append((message, response))
+    # if chat_history != '':
+    #     chat_history += split_mark_1
+    # chat_history += f'{message}{split_mark_2}{response}'
+    chat_history = json.dump(out_chat)
     print(f'liuyz_2_{chat_history}')
     return out_chat, chat_history
     
@@ -146,10 +160,9 @@ with gr.Blocks(title='Text to Image') as demo:
     # with gr.Group(elem_id="page_2", visible=False) as page_2: 
             with gr.Row(elem_id="prompt_row"):
                 chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "gray"))   
-                chatbot.change(None, show_progress=False)
             with gr.Row():
                 prompt_input0 = gr.Textbox(lines=1, label="prompt",show_label=False)
-                chat_history = gr.Textbox(lines=4, label="prompt", visible=False)
+                chat_history = gr.Textbox(lines=4, label="prompt", visible=True)
                 submit_btn = gr.Button(value = "submit",elem_id="submit-btn").style(
                         margin=True,
                         rounded=(True, True, True, True),
