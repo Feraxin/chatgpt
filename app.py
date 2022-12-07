@@ -76,7 +76,8 @@ start_work = """async() => {
 
         window['div_count'] = 0;
         window['chat_bot'] = window['gradioEl'].querySelectorAll('#chat_bot')[0];
-        window['chat_bot1'] = window['gradioEl'].querySelectorAll('#chat_bot1')[0];         
+        window['chat_bot1'] = window['gradioEl'].querySelectorAll('#chat_bot1')[0];   
+        window['chat_bot1'].children[1].textContent = '';
         window['checkChange'] = function checkChange() {
             try {
                 if (window['chat_bot'].children[2].children[0].children.length > window['div_count']) {
