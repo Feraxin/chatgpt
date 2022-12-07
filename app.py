@@ -77,7 +77,13 @@ start_work = """async() => {
         window['div_count'] = 0;
         window['chat_bot'] = window['gradioEl'].querySelectorAll('#chat_bot')[0];
         window['chat_bot1'] = window['gradioEl'].querySelectorAll('#chat_bot1')[0];   
+        chat_row = window['gradioEl'].querySelectorAll('#chat_row')[0]; 
         window['chat_bot1'].children[1].textContent = '';
+        
+        clientHeight = getClientHeight();
+        chat_row.style.height = (clientHeight-200) + 'px';
+        window['chat_bot'].style.height = (clientHeight-200) + 'px';
+        window['chat_bot1'].style.height = (clientHeight-200) + 'px';
         window['checkChange'] = function checkChange() {
             try {
                 if (window['chat_bot'].children[2].children[0].children.length > window['div_count']) {
@@ -112,7 +118,7 @@ with gr.Blocks(title='chat with chatgpt') as demo:
                 start_button.click(fn=None, inputs=[], outputs=[], _js=start_work)
                 
     with gr.Group(elem_id="page_2", visible=False) as page_2:        
-        with gr.Row(elem_id="prompt_row"):
+        with gr.Row(elem_id="chat_row"):
             chatbot = gr.Chatbot(elem_id="chat_bot", visible=False).style(color_map=("green", "blue"))
             chatbot1 = gr.Chatbot(elem_id="chat_bot1").style(color_map=("green", "blue"))
         with gr.Row():
