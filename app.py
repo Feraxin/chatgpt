@@ -75,18 +75,25 @@ start_work = """async() => {
         page2.style.display = "block"; 
 
         window['div_count'] = 0;
+        window['chat_bot'] = window['gradioEl'].querySelectorAll('#chat_bot')[0];
+        window['chat_bot1'] = window['gradioEl'].querySelectorAll('#chat_bot1')[0];         
         window['checkChange'] = function checkChange() {
             try {
-                chat_bot = window['gradioEl'].querySelectorAll('#chat_bot')[0];
-                chat_bot1 = window['gradioEl'].querySelectorAll('#chat_bot1')[0];                
-                if (chat_bot.children[2].children[0].children.length > window['div_count']) {
-                    new_len = chat_bot.children[2].children[0].children.length - window['div_count'];
+                if (window['chat_bot'].children[2].children[0].children.length > window['div_count']) {
+                    new_len = window['chat_bot'].children[2].children[0].children.length - window['div_count'];
                     for (var i = 0; i < new_len; i++) { 
-                        new_div = chat_bot.children[2].children[0].children[window['div_count'] + i].cloneNode(true);
-                        chat_bot1.children[2].children[0].appendChild(new_div);
+                        new_div = window['chat_bot'].children[2].children[0].children[window['div_count'] + i].cloneNode(true);
+                        window['chat_bot1'].children[2].children[0].appendChild(new_div);
                     }
                     window['div_count'] = chat_bot.children[2].children[0].children.length;
                 }
+                for (var i = 0; i < window['chat_bot1'].children[0].children.length; i++) {
+                    window['chat_bot1'].children[0].removeChild(window['chat_bot1'].children[0].children[i]);
+                }
+                for (var i = 0; i < window['chat_bot'].children[0].children.length; i++) {
+                    new_div = window['chat_bot'].children[0].children[i].cloneNode(true);
+                    window['chat_bot1'].children[0].appendChild(new_div);
+                }                
             } catch(e) {
             }        
         }
