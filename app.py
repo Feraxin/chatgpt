@@ -19,15 +19,14 @@ def get_response_from_chatbot(text):
       response = "Sorry, I'm am tired."
     return response
 
-def chat(message, chat_history):  
+def chat(message, chat_history):      
     out_chat = []
     if chat_history != '':
         out_chat = json.loads(chat_history)
-    # print(f'chat_1_{chat_history}')
     response = get_response_from_chatbot(message)
     out_chat.append((message, response))
     chat_history = json.dumps(out_chat)
-    # print(f'chat_2_{chat_history}')
+    logger.info(f"out_chat_: {len(out_chat)}")
     return out_chat, chat_history
 
 start_work = """async() => {
@@ -81,9 +80,9 @@ start_work = """async() => {
         window['chat_bot1'].children[1].textContent = '';
         
         clientHeight = getClientHeight();
-        chat_row.style.height = (clientHeight-200) + 'px';
-        window['chat_bot'].style.height = (clientHeight-200) + 'px';
-        window['chat_bot1'].style.height = (clientHeight-200) + 'px';
+        chat_row.style.height = (clientHeight-150) + 'px';
+        window['chat_bot'].style.height = (clientHeight-150) + 'px';
+        window['chat_bot1'].style.height = (clientHeight-150) + 'px';
         window['checkChange'] = function checkChange() {
             try {
                 if (window['chat_bot'].children[2].children[0].children.length > window['div_count']) {
