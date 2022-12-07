@@ -120,12 +120,12 @@ with gr.Blocks(title='Text to Image') as demo:
 
     with gr.Group(elem_id="page_2", visible=False) as page_2: 
         chatbot = gr.Chatbot(elem_id="chat_bot").style(color_map=("green", "gray"))
-        chatbot.change(chat,
-                    ["text", "state"],
-                    [chatbot, "state"],
-                    allow_flagging="never",
-                    show_label=False,                       
-                    show_progress=False)
+        # chatbot.change(chat,
+        #             ["text", "state"],
+        #             [chatbot, "state"],
+        #             allow_flagging="never",
+        #             show_label=False,                       
+        #             show_progress=False)
         # chat_demo = gr.Interface(
         #     chat,
         #     ["text", "state"],
