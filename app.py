@@ -16,7 +16,7 @@ def get_response_from_chatbot(text):
       response = resp['message']
       # logger.info(f"response_: {response}")
     except:
-      response = "Sorry, I'm am tired."
+      response = "Sorry, I'm tired."
     return response
 
 def chat(message, chat_history):      
@@ -77,15 +77,18 @@ start_work = """async() => {
         window['chat_bot'] = window['gradioEl'].querySelectorAll('#chat_bot')[0];
         window['chat_bot1'] = window['gradioEl'].querySelectorAll('#chat_bot1')[0];   
         chat_row = window['gradioEl'].querySelectorAll('#chat_row')[0]; 
+        prompt_row = window['gradioEl'].querySelectorAll('#prompt_row')[0]; 
         window['chat_bot1'].children[1].textContent = '';
         
         clientHeight = getClientHeight();
-        new_height = (clientHeight-150) + 'px';
+        new_height = (clientHeight-200) + 'px';
         chat_row.style.height = new_height;
         window['chat_bot'].style.height = new_height;
         window['chat_bot'].children[2].style.height = new_height;
         window['chat_bot1'].style.height = new_height;
         window['chat_bot1'].children[2].style.height = new_height;
+        prompt_row,children[0].style.width = '100%';
+        prompt_row,children[0].style.flex = 'auto';
         
         window['checkChange'] = function checkChange() {
             try {
@@ -124,8 +127,8 @@ with gr.Blocks(title='Talk to chatGPT') as demo:
         with gr.Row(elem_id="chat_row"):
             chatbot = gr.Chatbot(elem_id="chat_bot", visible=False).style(color_map=("green", "blue"))
             chatbot1 = gr.Chatbot(elem_id="chat_bot1").style(color_map=("green", "blue"))
-        with gr.Row():
-            prompt_input = gr.Textbox(lines=1, label="prompt",show_label=False)
+        with gr.Row(elem_id="prompt_row"):
+            prompt_input = gr.Textbox(lines=2, label="prompt",show_label=False)
             chat_history = gr.Textbox(lines=4, label="prompt", visible=False)
             submit_btn = gr.Button(value = "submit",elem_id="submit-btn").style(
                     margin=True,
