@@ -16,7 +16,7 @@ def get_response_from_chatbot(text):
       response = resp['message']
       # logger.info(f"response_: {response}")
     except:
-      response = "Sorry, I'm tired."
+      response = "Sorry, I'm busy. Try again later."
     return response
 
 def chat(message, chat_history):      
