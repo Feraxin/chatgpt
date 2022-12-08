@@ -54,11 +54,11 @@ def chat(input0, input1, chat_radio, chat_history):
     out_chat = []
     if chat_history != '':
         out_chat = json.loads(chat_history)
+    logger.info(f"out_chat_: {len(out_chat)} / {chat_radio}")
     if chat_radio == "Talk to chatGPT":
         response = get_response_from_chatbot(input0)
         out_chat.append((input0, response))
         chat_history = json.dumps(out_chat)
-        logger.info(f"out_chat_: {len(out_chat)} / {chat_radio}")
         return out_chat, input1, chat_history
     else:
         prompt_en = getTextTrans(input0, source='zh', target='en') + f',{random.randint(0,sys.maxsize)}'
