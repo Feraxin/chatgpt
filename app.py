@@ -1,8 +1,17 @@
 from pyChatGPT import ChatGPT
 import gradio as gr
-import os, json
+import os, sys, json
 from loguru import logger
+import paddlehub as hub
 import random
+
+language_translation_model = hub.Module(directory=f'./baidu_translate')
+def getTextTrans(text, source='zh', target='en'):
+    try:
+        text_translation = language_translation_model.translate(text, source, target)
+        return text_translation
+    except Exception as e:
+        return text 
 
 session_token = os.environ.get('SessionToken')      
 # logger.info(f"session_token_: {session_token}")
@@ -19,15 +28,42 @@ def get_response_from_chatbot(text):
       response = "Sorry, I'm busy. Try again later."
     return response
 
-def chat(message, chat_history):      
+model_ids = {
+            # "models/stabilityai/stable-diffusion-2-1":"sd-v2-1",
+            # "models/stabilityai/stable-diffusion-2":"sd-v2-0",
+            # "models/runwayml/stable-diffusion-v1-5":"sd-v1-5",
+            # "models/CompVis/stable-diffusion-v1-4":"sd-v1-4",
+            "models/prompthero/openjourney":"openjourney",
+            # "models/ShadoWxShinigamI/Midjourney-Rangoli":"midjourney",
+            # "models/hakurei/waifu-diffusion":"waifu-diffusion",
+            # "models/Linaqruf/anything-v3.0":"anything-v3.0",
+           }
+
+tab_actions = []
+tab_titles = []
+for model_id in model_ids.keys():
+    print(model_id, model_ids[model_id])
+    try:
+        tab = gr.Interface.load(model_id)
+        tab_actions.append(tab)
+        tab_titles.append(model_ids[model_id])
+    except:
+        logger.info(f"load_fail__{model_id}_")
+        
+def chat(input0, input1, chat_radio, chat_history):
     out_chat = []
     if chat_history != '':
         out_chat = json.loads(chat_history)
-    response = get_response_from_chatbot(message)
-    out_chat.append((message, response))
-    chat_history = json.dumps(out_chat)
-    logger.info(f"out_chat_: {len(out_chat)}")
-    return out_chat, chat_history
+    if chat_radio == "Talk to chatGPT":
+        response = get_response_from_chatbot(input0)
+        out_chat.append((input0, response))
+        chat_history = json.dumps(out_chat)
+        logger.info(f"out_chat_: {len(out_chat)} / {chat_radio}")
+        return out_chat, input1, chat_history
+    else:
+        prompt_en = getTextTrans(input0, source='zh', target='en') + f',{random.randint(0,sys.maxsize)}'
+        return out_chat, prompt_en, chat_history
+        
 
 start_work = """async() => {
     function isMobile() {
@@ -84,9 +120,9 @@ start_work = """async() => {
         if (isMobile()) {
             window['gradioEl'].querySelectorAll('#component-1')[0].style.display = "none";
             window['gradioEl'].querySelectorAll('#component-2')[0].style.display = "none";
-            new_height = (clientHeight - 200) + 'px';
+            new_height = (clientHeight - 250) + 'px';
         } else {
-            new_height = (clientHeight - 300) + 'px';
+            new_height = (clientHeight - 350) + 'px';
         }
         chat_row.style.height = new_height;
         window['chat_bot'].style.height = new_height;
@@ -95,23 +131,80 @@ start_work = """async() => {
         window['chat_bot1'].children[2].style.height = new_height;
         prompt_row.children[0].style.flex = 'auto';
         prompt_row.children[0].style.width = '100%';
+        window['gradioEl'].querySelectorAll('#chat_radio')[0].style.flex = 'auto';
+        window['gradioEl'].querySelectorAll('#chat_radio')[0].style.width = '100%';        
         prompt_row.children[0].setAttribute('style','flex-direction: inherit; flex: 1 1 auto; width: 100%;border-color: green;border-width: 1px !important;')
-                
+                       
+        window['prevPrompt'] = '';
+        window['doCheckPrompt'] = 0;
+        window['prevImgSrc'] = '';
         window['checkChange'] = function checkChange() {
             try {
-                if (window['chat_bot'].children[2].children[0].children.length > window['div_count']) {
-                    new_len = window['chat_bot'].children[2].children[0].children.length - window['div_count'];
-                    for (var i = 0; i < new_len; i++) { 
-                        new_div = window['chat_bot'].children[2].children[0].children[window['div_count'] + i].cloneNode(true);
-                        window['chat_bot1'].children[2].children[0].appendChild(new_div);
+                if (window['gradioEl'].querySelectorAll('.gr-radio')[0].checked) {
+                    if (window['chat_bot'].children[2].children[0].children.length > window['div_count']) {
+                        new_len = window['chat_bot'].children[2].children[0].children.length - window['div_count'];
+                        for (var i = 0; i < new_len; i++) { 
+                            new_div = window['chat_bot'].children[2].children[0].children[window['div_count'] + i].cloneNode(true);
+                            window['chat_bot1'].children[2].children[0].appendChild(new_div);
+                        }
+                        window['div_count'] = chat_bot.children[2].children[0].children.length;
+                        window['chat_bot1'].children[2].scrollTop = window['chat_bot1'].children[2].scrollHeight;
                     }
-                    window['div_count'] = chat_bot.children[2].children[0].children.length;
-                    window['chat_bot1'].children[2].scrollTop = window['chat_bot1'].children[2].scrollHeight;
-                }
-                if (window['chat_bot'].children[0].children.length > 1) {
-                     window['chat_bot1'].children[1].textContent = window['chat_bot'].children[0].children[1].textContent;
+                    if (window['chat_bot'].children[0].children.length > 1) {
+                         window['chat_bot1'].children[1].textContent = window['chat_bot'].children[0].children[1].textContent;
+                    } else {
+                        window['chat_bot1'].children[1].textContent = '';
+                    }
                 } else {
-                    window['chat_bot1'].children[1].textContent = '';
+                    texts = window['gradioEl'].querySelectorAll('textarea');
+                    text0 = texts[0];    
+                    text1 = texts[1];
+                    img_index = 0;
+                    if (window['doCheckPrompt'] === 0 && window['prevPrompt'] !== text1.value) {
+                            console.log('_____new prompt___[' + text1.value + ']_');
+                            window['doCheckPrompt'] = 1;
+                            window['prevPrompt'] = text1.value;
+                            for (var i = 3; i < texts.length; i++) {
+                                setNativeValue(texts[i], text1.value);
+                                texts[i].dispatchEvent(new Event('input', { bubbles: true }));
+                            }                        
+                            setTimeout(function() {
+                                img_submit_btns = window['gradioEl'].querySelectorAll('#tab_img')[0].querySelectorAll("button");
+                                for (var i = 0; i < img_submit_btns.length; i++) {
+                                    if (img_submit_btns[i].innerText == 'Submit') {
+                                        img_submit_btns[i].click();                
+                                    }
+                                }
+                                window['doCheckPrompt'] = 0;
+                            }, 10);                   
+                    }
+                    tabitems = window['gradioEl'].querySelectorAll('.tabitem');
+                    imgs = tabitems[img_index].children[0].children[1].children[1].children[0].querySelectorAll("img");
+                    if (imgs.length > 0) {
+                        if (window['prevImgSrc'] !== imgs[0].src) {
+                            var user_div = document.createElement("div");
+                            user_div.className = "px-3 py-2 rounded-[22px] rounded-br-none text-white text-sm chat-message svelte-rct66g";
+                            user_div.style.backgroundColor = "#16a34a"; 
+                            user_div.innerHTML = "<p>" + text0.value + "</p>";
+                            window['chat_bot1'].children[2].children[0].appendChild(user_div);
+
+                            var bot_div = document.createElement("div");
+                            bot_div.className = "px-3 py-2 rounded-[22px] rounded-bl-none place-self-start text-white text-sm chat-message svelte-rct66g";
+                            bot_div.style.backgroundColor = "#2563eb"; 
+                            bot_div.style.width = "50%"; 
+                            bot_div.style.padding = "0.2rem"; 
+                            bot_div.appendChild(imgs[0].cloneNode(true));
+                            window['chat_bot1'].children[2].children[0].appendChild(bot_div);
+                            
+                            window['chat_bot1'].children[2].scrollTop = window['chat_bot1'].children[2].scrollHeight;
+                            window['prevImgSrc'] = imgs[0].src;
+                        }
+                    }
+                    if (tabitems[img_index].children[0].children[1].children[1].children[0].children[0].children.length > 1) {
+                         window['chat_bot1'].children[1].textContent = tabitems[img_index].children[0].children[1].children[1].children[0].children[0].children[1].textContent;
+                    } else {
+                        window['chat_bot1'].children[1].textContent = '';
+                    }                              
                 }
               
             } catch(e) {
@@ -138,16 +231,20 @@ with gr.Blocks(title='Talk to chatGPT') as demo:
             chatbot = gr.Chatbot(elem_id="chat_bot", visible=False).style(color_map=("green", "blue"))
             chatbot1 = gr.Chatbot(elem_id="chat_bot1").style(color_map=("green", "blue"))
         with gr.Row(elem_id="prompt_row"):
-            prompt_input = gr.Textbox(lines=2, label="prompt",show_label=False)
+            prompt_input0 = gr.Textbox(lines=2, label="prompt",show_label=False)
+            prompt_input1 = gr.Textbox(lines=4, label="prompt", visible=False)
             chat_history = gr.Textbox(lines=4, label="prompt", visible=False)
+            chat_radio = gr.Radio(["Talk to chatGPT", "Text to Image"], elem_id="chat_radio",value="Talk to chatGPT", show_label=False)
             submit_btn = gr.Button(value = "submit",elem_id="submit-btn").style(
                     margin=True,
                     rounded=(True, True, True, True),
                     width=100
                 )
             submit_btn.click(fn=chat, 
-                             inputs=[prompt_input, chat_history], 
-                             outputs=[chatbot, chat_history],
+                             inputs=[prompt_input0, prompt_input1, chat_radio, chat_history], 
+                             outputs=[chatbot, prompt_input1, chat_history],
                             )
+        with gr.Row(elem_id='tab_img', visible=False).style(height=5):
+           tab_img = gr.TabbedInterface(tab_actions, tab_titles)             
 
 demo.launch(debug = True)

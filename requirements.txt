@@ -1,2 +1,4 @@
 pyChatGPT
 loguru
+paddlepaddle==2.3.2
+paddlehub
