@@ -95,7 +95,8 @@ start_work = """async() => {
         window['chat_bot1'].children[2].style.height = new_height;
         prompt_row.children[0].style.flex = 'auto';
         prompt_row.children[0].style.width = '100%';
-        
+        prompt_row.children[0].setAttribute('style','flex-direction: inherit; flex: 1 1 auto; width: 100%;border-color: green;')
+                
         window['checkChange'] = function checkChange() {
             try {
                 if (window['chat_bot'].children[2].children[0].children.length > window['div_count']) {
