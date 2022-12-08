@@ -118,8 +118,10 @@ start_work = """async() => {
         
         clientHeight = getClientHeight();
         if (isMobile()) {
-            window['gradioEl'].querySelectorAll('#component-1')[0].style.display = "none";
-            window['gradioEl'].querySelectorAll('#component-2')[0].style.display = "none";
+            output_htmls = window['gradioEl'].querySelectorAll('.output-html');
+            for (var i = 0; i < output_htmls.length; i++) {
+               output_htmls[i].style.display = "none";
+            }
             new_height = (clientHeight - 250) + 'px';
         } else {
             new_height = (clientHeight - 350) + 'px';
