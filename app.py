@@ -136,7 +136,7 @@ start_work = """async() => {
         window['gradioEl'].querySelectorAll('#chat_radio')[0].style.flex = 'auto';
         window['gradioEl'].querySelectorAll('#chat_radio')[0].style.width = '100%';        
         prompt_row.children[0].setAttribute('style','flex-direction: inherit; flex: 1 1 auto; width: 100%;border-color: green;border-width: 1px !important;')
-        window['chat_bot1'].children[1].setAttribute('style', 'border-bottom-right-radioius:0;top:unset;bottom:0;');
+        window['chat_bot1'].children[1].setAttribute('style', 'border-bottom-right-radius:0;top:unset;bottom:0;');
         
         window['prevPrompt'] = '';
         window['doCheckPrompt'] = 0;
