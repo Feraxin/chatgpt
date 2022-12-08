@@ -106,6 +106,7 @@ start_work = """async() => {
                         window['chat_bot1'].children[2].children[0].appendChild(new_div);
                     }
                     window['div_count'] = chat_bot.children[2].children[0].children.length;
+                    window['chat_bot1'].children[2].scrollTop = window['chat_bot1'].children[2].scrollHeight;
                 }
                 if (window['chat_bot'].children[0].children.length > 1) {
                      window['chat_bot1'].children[1].textContent = window['chat_bot'].children[0].children[1].textContent;
