@@ -193,7 +193,7 @@ start_work = """async() => {
                             var bot_div = document.createElement("div");
                             bot_div.className = "px-3 py-2 rounded-[22px] rounded-bl-none place-self-start text-white text-sm chat-message svelte-rct66g";
                             bot_div.style.backgroundColor = "#2563eb"; 
-                            bot_div.style.width = "50%"; 
+                            bot_div.style.width = "80%"; 
                             bot_div.style.padding = "0.2rem"; 
                             bot_div.appendChild(imgs[0].cloneNode(true));
                             window['chat_bot1'].children[2].children[0].appendChild(bot_div);
