@@ -16,16 +16,27 @@ def getTextTrans(text, source='zh', target='en'):
 session_token = os.environ.get('SessionToken')      
 # logger.info(f"session_token_: {session_token}")
 
-def get_response_from_chatbot(text):
+def get_api():
     try:
-      api = ChatGPT(session_token) 
-      resp = api.send_message(text)    
-      api.refresh_auth() 
-      api.reset_conversation() 
-      response = resp['message']
-      # logger.info(f"response_: {response}")
+      api = ChatGPT(session_token)
+      api.refresh_auth()
     except:
-      response = "Sorry, I'm busy. Try again later."
+      api = None
+    return api
+    
+def get_response_from_chatbot(api, text):
+    if api is None:
+        return "Sorry, I'm busy. Try again later.(1)"
+    try:
+      resp = api.send_message(text)    
+      api.refresh_auth()
+      response = resp['message']
+      conversation_id = resp['conversation_id']
+      parent_id = resp['parent_id']
+      # logger.info(f"response_: {response}")
+      # logger.info(f"conversation_id_: [{conversation_id}] / parent_id: [{parent_id}]")  
+    except:
+      response = "Sorry, I'm busy. Try again later.(2)"
     return response
 
 model_ids = {
@@ -50,19 +61,19 @@ for model_id in model_ids.keys():
     except:
         logger.info(f"load_fail__{model_id}_")
         
-def chat(input0, input1, chat_radio, chat_history):
+def chat(api, input0, input1, chat_radio, chat_history):
     out_chat = []
     if chat_history != '':
         out_chat = json.loads(chat_history)
     logger.info(f"out_chat_: {len(out_chat)} / {chat_radio}")
     if chat_radio == "Talk to chatGPT":
-        response = get_response_from_chatbot(input0)
+        response = get_response_from_chatbot(api, input0)
         out_chat.append((input0, response))
         chat_history = json.dumps(out_chat)
-        return out_chat, input1, chat_history
+        return api, out_chat, input1, chat_history
     else:
         prompt_en = getTextTrans(input0, source='zh', target='en') + f',{random.randint(0,sys.maxsize)}'
-        return out_chat, prompt_en, chat_history
+        return api, out_chat, prompt_en, chat_history
         
 
 start_work = """async() => {
@@ -136,8 +147,8 @@ start_work = """async() => {
         window['gradioEl'].querySelectorAll('#chat_radio')[0].style.flex = 'auto';
         window['gradioEl'].querySelectorAll('#chat_radio')[0].style.width = '100%';        
         prompt_row.children[0].setAttribute('style','flex-direction: inherit; flex: 1 1 auto; width: 100%;border-color: green;border-width: 1px !important;')
-        window['chat_bot1'].children[1].setAttribute('style', 'border-bottom-right-radius:0;top:unset;bottom:0;padding-left:0.1rem;');
-        
+        window['chat_bot1'].children[1].setAttribute('style', 'border-bottom-right-radius:0;top:unset;bottom:0;padding-left:0.1rem');
+                       
         window['prevPrompt'] = '';
         window['doCheckPrompt'] = 0;
         window['prevImgSrc'] = '';
@@ -243,9 +254,10 @@ with gr.Blocks(title='Talk to chatGPT') as demo:
                     rounded=(True, True, True, True),
                     width=100
                 )
+            api = gr.State(value=get_api())
             submit_btn.click(fn=chat, 
-                             inputs=[prompt_input0, prompt_input1, chat_radio, chat_history], 
-                             outputs=[chatbot, prompt_input1, chat_history],
+                             inputs=[api, prompt_input0, prompt_input1, chat_radio, chat_history], 
+                             outputs=[api, chatbot, prompt_input1, chat_history],
                             )
         with gr.Row(elem_id='tab_img', visible=False).style(height=5):
            tab_img = gr.TabbedInterface(tab_actions, tab_titles)             
