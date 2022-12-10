@@ -30,11 +30,12 @@ def get_response_from_chatbot(api, text):
     try:
       resp = api.send_message(text)    
       api.refresh_auth()
+      # api.reset_conversation() 
       response = resp['message']
       conversation_id = resp['conversation_id']
       parent_id = resp['parent_id']
       # logger.info(f"response_: {response}")
-      # logger.info(f"conversation_id_: [{conversation_id}] / parent_id: [{parent_id}]")  
+      logger.info(f"conversation_id_: [{conversation_id}] / parent_id: [{parent_id}]")  
     except:
       response = "Sorry, I'm busy. Try again later.(2)"
     return response
@@ -74,7 +75,6 @@ def chat(api, input0, input1, chat_radio, chat_history):
     else:
         prompt_en = getTextTrans(input0, source='zh', target='en') + f',{random.randint(0,sys.maxsize)}'
         return api, out_chat, prompt_en, chat_history
-        
 
 start_work = """async() => {
     function isMobile() {
@@ -106,6 +106,36 @@ start_work = """async() => {
             valueSetter.call(element, value);
       }
     }
+    function save_conversation(chatbot) {        
+        var conversations = new Array();
+        for (var i = 0; i < chatbot.children.length; i++) {
+            conversations[i] = chatbot.children[i].innerHTML;
+        }
+        var json_str = JSON.stringify(conversations);
+        localStorage.setItem('chatgpt_conversations', json_str);
+    }
+    function load_conversation(chatbot) {
+        var json_str = localStorage.getItem('chatgpt_conversations');
+        if (json_str) {
+            conversations = JSON.parse(json_str);
+            for (var i = 0; i < conversations.length; i++) {
+                var new_div = document.createElement("div");
+                if((i%2)===0){
+                    new_div.className = "px-3 py-2 rounded-[22px] rounded-br-none text-white text-sm chat-message svelte-rct66g";
+                    new_div.style.backgroundColor = "#16a34a"; 
+                } else {
+                    new_div.className = "px-3 py-2 rounded-[22px] rounded-bl-none place-self-start text-white text-sm chat-message svelte-rct66g";
+                    new_div.style.backgroundColor = "#2563eb"; 
+                    if (conversations[i].indexOf("<img ") == 0) { 
+                        new_div.style.width = "80%"; 
+                        new_div.style.padding = "0.2rem"; 
+                    }                
+                }
+                new_div.innerHTML = conversations[i];
+                chatbot.appendChild(new_div);
+            }
+        }
+    }
     var gradioEl = document.querySelector('body > gradio-app').shadowRoot;
     if (!gradioEl) {
         gradioEl = document.querySelector('body > gradio-app');
@@ -119,7 +149,6 @@ start_work = """async() => {
     
         page1.style.display = "none";
         page2.style.display = "block";
-
         window['div_count'] = 0;
         window['chat_bot'] = window['gradioEl'].querySelectorAll('#chat_bot')[0];
         window['chat_bot1'] = window['gradioEl'].querySelectorAll('#chat_bot1')[0];   
@@ -148,7 +177,23 @@ start_work = """async() => {
         window['gradioEl'].querySelectorAll('#chat_radio')[0].style.width = '100%';        
         prompt_row.children[0].setAttribute('style','flex-direction: inherit; flex: 1 1 auto; width: 100%;border-color: green;border-width: 1px !important;')
         window['chat_bot1'].children[1].setAttribute('style', 'border-bottom-right-radius:0;top:unset;bottom:0;padding-left:0.1rem');
-                       
+        load_conversation(window['chat_bot1'].children[2].children[0]);
+        window['chat_bot1'].children[2].scrollTop = window['chat_bot1'].children[2].scrollHeight;
+        var mousedown_last = 0;
+        window['chat_bot1'].children[2].addEventListener('mousedown', function(e) {
+            mousedown_last = new Date();
+        })
+        window['chat_bot1'].children[2].addEventListener('mouseup', function(e) {
+            var now = new Date();
+            if (now - mousedown_last > 5 * 1000) {
+                if (confirm('Clear outputs?')==true) {
+                     window['chat_bot1'].children[2].children[0].innerHTML = '';
+                     save_conversation(window['chat_bot1'].children[2].children[0]);
+                }
+            }
+            mousedown_last = 0;
+        })
+ 
         window['prevPrompt'] = '';
         window['doCheckPrompt'] = 0;
         window['prevImgSrc'] = '';
@@ -163,9 +208,10 @@ start_work = """async() => {
                         }
                         window['div_count'] = chat_bot.children[2].children[0].children.length;
                         window['chat_bot1'].children[2].scrollTop = window['chat_bot1'].children[2].scrollHeight;
+                        save_conversation(window['chat_bot1'].children[2].children[0]);
                     }
                     if (window['chat_bot'].children[0].children.length > 1) {
-                         window['chat_bot1'].children[1].textContent = window['chat_bot'].children[0].children[1].textContent;
+                        window['chat_bot1'].children[1].textContent = window['chat_bot'].children[0].children[1].textContent;
                     } else {
                         window['chat_bot1'].children[1].textContent = '';
                     }
@@ -201,7 +247,6 @@ start_work = """async() => {
                             user_div.style.backgroundColor = "#16a34a"; 
                             user_div.innerHTML = "<p>" + text0.value + "</p>";
                             window['chat_bot1'].children[2].children[0].appendChild(user_div);
-
                             var bot_div = document.createElement("div");
                             bot_div.className = "px-3 py-2 rounded-[22px] rounded-bl-none place-self-start text-white text-sm chat-message svelte-rct66g";
                             bot_div.style.backgroundColor = "#2563eb"; 
@@ -212,6 +257,7 @@ start_work = """async() => {
                             
                             window['chat_bot1'].children[2].scrollTop = window['chat_bot1'].children[2].scrollHeight;
                             window['prevImgSrc'] = imgs[0].src;
+                            save_conversation(window['chat_bot1'].children[2].children[0]);
                         }
                     }
                     if (tabitems[img_index].children[0].children[1].children[1].children[0].children[0].children.length > 1) {
