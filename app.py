@@ -26,7 +26,8 @@ def get_api():
     
 def get_response_from_chatbot(api, text):
     if api is None:
-        return "Sorry, I'm busy. Try again later.(1)"
+        # return "Sorry, I'm busy. Try again later.(1)"
+        return "Openai said: I'm too tired. Let me lie down for a few days."
     try:
       resp = api.send_message(text)    
       api.refresh_auth()
@@ -37,7 +38,8 @@ def get_response_from_chatbot(api, text):
       # logger.info(f"response_: {response}")
       logger.info(f"conversation_id_: [{conversation_id}] / parent_id: [{parent_id}]")  
     except:
-      response = "Sorry, I'm busy. Try again later.(2)"
+      # response = "Sorry, I'm busy. Try again later.(2)"
+      response = "Openai said: I'm so tired. Let me lie down for a few days."
     return response
 
 model_ids = {
