@@ -179,20 +179,12 @@ start_work = """async() => {
         window['chat_bot1'].children[1].setAttribute('style', 'border-bottom-right-radius:0;top:unset;bottom:0;padding-left:0.1rem');
         load_conversation(window['chat_bot1'].children[2].children[0]);
         window['chat_bot1'].children[2].scrollTop = window['chat_bot1'].children[2].scrollHeight;
-        var mousedown_last = 0;
-        window['chat_bot1'].children[2].addEventListener('mousedown', function(e) {
-            mousedown_last = new Date();
-        })
-        window['chat_bot1'].children[2].addEventListener('mouseup', function(e) {
-            var now = new Date();
-            if (now - mousedown_last > 5 * 1000) {
-                if (confirm('Clear outputs?')==true) {
-                     window['chat_bot1'].children[2].children[0].innerHTML = '';
-                     save_conversation(window['chat_bot1'].children[2].children[0]);
-                }
+        window['gradioEl'].querySelectorAll('#clear-btn')[0].onclick = function(e){
+            if (confirm('Clear all outputs?')==true) {
+                 window['chat_bot1'].children[2].children[0].innerHTML = '';
+                 save_conversation(window['chat_bot1'].children[2].children[0]);
             }
-            mousedown_last = 0;
-        })
+        }
  
         window['prevPrompt'] = '';
         window['doCheckPrompt'] = 0;
@@ -295,11 +287,19 @@ with gr.Blocks(title='Talk to chatGPT') as demo:
             prompt_input1 = gr.Textbox(lines=4, label="prompt", visible=False)
             chat_history = gr.Textbox(lines=4, label="prompt", visible=False)
             chat_radio = gr.Radio(["Talk to chatGPT", "Text to Image"], elem_id="chat_radio",value="Talk to chatGPT", show_label=False)
-            submit_btn = gr.Button(value = "submit",elem_id="submit-btn").style(
-                    margin=True,
-                    rounded=(True, True, True, True),
-                    width=100
-                )
+        with gr.Row(elem_id="btns_row"):
+            with gr.Column(id="submit_col"):
+                submit_btn = gr.Button(value = "submit",elem_id="submit-btn").style(
+                        margin=True,
+                        rounded=(True, True, True, True),
+                        width=100
+                    )
+            with gr.Column(id="clear_col"):
+                clear_btn = gr.Button(value = "clear outputs", elem_id="clear-btn").style(
+                        margin=True,
+                        rounded=(True, True, True, True),
+                        width=100
+                    )
             api = gr.State(value=get_api())
             submit_btn.click(fn=chat, 
                              inputs=[api, prompt_input0, prompt_input1, chat_radio, chat_history], 
