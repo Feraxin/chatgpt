@@ -177,8 +177,12 @@ start_work = """async() => {
         window['gradioEl'].querySelectorAll('#chat_radio')[0].style.width = '100%';        
         prompt_row.children[0].setAttribute('style','flex-direction: inherit; flex: 1 1 auto; width: 100%;border-color: green;border-width: 1px !important;')
         window['chat_bot1'].children[1].setAttribute('style', 'border-bottom-right-radius:0;top:unset;bottom:0;padding-left:0.1rem');
+        window['gradioEl'].querySelectorAll('#btns_row')[0].children[0].setAttribute('style', 'min-width: min(10px, 100%); flex-grow: 1');
+        window['gradioEl'].querySelectorAll('#btns_row')[0].children[1].setAttribute('style', 'min-width: min(10px, 100%); flex-grow: 1');
+        
         load_conversation(window['chat_bot1'].children[2].children[0]);
         window['chat_bot1'].children[2].scrollTop = window['chat_bot1'].children[2].scrollHeight;
+        
         window['gradioEl'].querySelectorAll('#clear-btn')[0].onclick = function(e){
             if (confirm('Clear all outputs?')==true) {
                  window['chat_bot1'].children[2].children[0].innerHTML = '';
