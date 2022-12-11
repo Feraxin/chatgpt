@@ -17,17 +17,18 @@ session_token = os.environ.get('SessionToken')
 # logger.info(f"session_token_: {session_token}")
 
 def get_api():
-    try:
-      api = ChatGPT(session_token)
-      api.refresh_auth()
-    except:
-      api = None
+    api = None
+    # try:
+    #   api = ChatGPT(session_token)
+    #   # api.refresh_auth()
+    # except:
+    #   api = None
     return api
     
 def get_response_from_chatbot(api, text):
     if api is None:
         # return "Sorry, I'm busy. Try again later.(1)"
-        return "Openai said: I'm too tired. Let me lie down for a few days."
+        return "Openai said: I'm too tired. Let me lie down for a few days. If you like, you can visit my home."
     try:
       resp = api.send_message(text)    
       api.refresh_auth()
@@ -39,7 +40,7 @@ def get_response_from_chatbot(api, text):
       logger.info(f"conversation_id_: [{conversation_id}] / parent_id: [{parent_id}]")  
     except:
       # response = "Sorry, I'm busy. Try again later.(2)"
-      response = "Openai said: I'm so tired. Let me lie down for a few days."
+      response = "Openai said: I'm so tired. Let me lie down for a few days. If you like, you can visit my home."
     return response
 
 model_ids = {
