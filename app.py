@@ -5,8 +5,18 @@ from loguru import logger
 import paddlehub as hub
 import random
 
+    
 language_translation_model = hub.Module(directory=f'./baidu_translate')
 def getTextTrans(text, source='zh', target='en'):
+    def is_chinese(string):
+        for ch in string:
+            if u'\u4e00' <= ch <= u'\u9fff':
+                return True
+        return False
+        
+    if not is_chinese(text) and target == 'en': 
+        return text
+        
     try:
         text_translation = language_translation_model.translate(text, source, target)
         return text_translation
@@ -18,20 +28,21 @@ session_token = os.environ.get('SessionToken')
 
 def get_api():
     api = None
-    # try:
-    #   api = ChatGPT(session_token)
-    #   # api.refresh_auth()
-    # except:
-    #   api = None
+    try:
+      api = ChatGPT(session_token)
+      # api.refresh_auth()
+    except Exception as e:
+      print(f'get_api_error:', e)
+      api = None
     return api
-    
-def get_response_from_chatbot(api, text):
+
+  
+def get_response_from_chatgpt(api, text):
     if api is None:
-        # return "Sorry, I'm busy. Try again later.(1)"
         return "Openai said: I'm too tired. Let me lie down for a few days. If you like, you can visit my home."
     try:
       resp = api.send_message(text)    
-      api.refresh_auth()
+      # api.refresh_auth()
       # api.reset_conversation() 
       response = resp['message']
       conversation_id = resp['conversation_id']
@@ -39,45 +50,8 @@ def get_response_from_chatbot(api, text):
       # logger.info(f"response_: {response}")
       logger.info(f"conversation_id_: [{conversation_id}] / parent_id: [{parent_id}]")  
     except:
-      # response = "Sorry, I'm busy. Try again later.(2)"
       response = "Openai said: I'm so tired. Let me lie down for a few days. If you like, you can visit my home."
     return response
-
-model_ids = {
-            # "models/stabilityai/stable-diffusion-2-1":"sd-v2-1",
-            # "models/stabilityai/stable-diffusion-2":"sd-v2-0",
-            # "models/runwayml/stable-diffusion-v1-5":"sd-v1-5",
-            # "models/CompVis/stable-diffusion-v1-4":"sd-v1-4",
-            "models/prompthero/openjourney":"openjourney",
-            # "models/ShadoWxShinigamI/Midjourney-Rangoli":"midjourney",
-            # "models/hakurei/waifu-diffusion":"waifu-diffusion",
-            # "models/Linaqruf/anything-v3.0":"anything-v3.0",
-           }
-
-tab_actions = []
-tab_titles = []
-for model_id in model_ids.keys():
-    print(model_id, model_ids[model_id])
-    try:
-        tab = gr.Interface.load(model_id)
-        tab_actions.append(tab)
-        tab_titles.append(model_ids[model_id])
-    except:
-        logger.info(f"load_fail__{model_id}_")
-        
-def chat(api, input0, input1, chat_radio, chat_history):
-    out_chat = []
-    if chat_history != '':
-        out_chat = json.loads(chat_history)
-    logger.info(f"out_chat_: {len(out_chat)} / {chat_radio}")
-    if chat_radio == "Talk to chatGPT":
-        response = get_response_from_chatbot(api, input0)
-        out_chat.append((input0, response))
-        chat_history = json.dumps(out_chat)
-        return api, out_chat, input1, chat_history
-    else:
-        prompt_en = getTextTrans(input0, source='zh', target='en') + f',{random.randint(0,sys.maxsize)}'
-        return api, out_chat, prompt_en, chat_history
 
 start_work = """async() => {
     function isMobile() {
@@ -219,26 +193,30 @@ start_work = """async() => {
                     text0 = texts[0];    
                     text1 = texts[1];
                     img_index = 0;
-                    if (window['doCheckPrompt'] === 0 && window['prevPrompt'] !== text1.value) {
-                            console.log('_____new prompt___[' + text1.value + ']_');
+                    text_value = text1.value;
+                    if (window['doCheckPrompt'] === 0 && window['prevPrompt'] !== text_value) {
+                            console.log('_____new prompt___[' + text_value + ']_');
                             window['doCheckPrompt'] = 1;
-                            window['prevPrompt'] = text1.value;
-                            for (var i = 3; i < texts.length; i++) {
-                                setNativeValue(texts[i], text1.value);
-                                texts[i].dispatchEvent(new Event('input', { bubbles: true }));
-                            }                        
+                            window['prevPrompt'] = text_value;
+ 
+                            tabitems = window['gradioEl'].querySelectorAll('.tabitem');
+                            for (var i = 0; i < tabitems.length; i++) {   
+                                inputText = tabitems[i].children[0].children[1].children[0].querySelectorAll('.gr-text-input')[0];
+                                setNativeValue(inputText, text_value);
+                                inputText.dispatchEvent(new Event('input', { bubbles: true }));
+                            }                            
                             setTimeout(function() {
-                                img_submit_btns = window['gradioEl'].querySelectorAll('#tab_img')[0].querySelectorAll("button");
-                                for (var i = 0; i < img_submit_btns.length; i++) {
-                                    if (img_submit_btns[i].innerText == 'Submit') {
-                                        img_submit_btns[i].click();                
+                                btns = window['gradioEl'].querySelectorAll('button');
+                                for (var i = 0; i < btns.length; i++) {
+                                    if (['Generate image','Run'].includes(btns[i].innerText)) {
+                                        btns[i].click();                
                                     }
                                 }
                                 window['doCheckPrompt'] = 0;
                             }, 10);                   
                     }
                     tabitems = window['gradioEl'].querySelectorAll('.tabitem');
-                    imgs = tabitems[img_index].children[0].children[1].children[1].children[0].querySelectorAll("img");
+                    imgs = tabitems[img_index].children[0].children[1].children[1].querySelectorAll("img");
                     if (imgs.length > 0) {
                         if (window['prevImgSrc'] !== imgs[0].src) {
                             var user_div = document.createElement("div");
@@ -259,8 +237,8 @@ start_work = """async() => {
                             save_conversation(window['chat_bot1'].children[2].children[0]);
                         }
                     }
-                    if (tabitems[img_index].children[0].children[1].children[1].children[0].children[0].children.length > 1) {
-                         window['chat_bot1'].children[1].textContent = tabitems[img_index].children[0].children[1].children[1].children[0].children[0].children[1].textContent;
+                    if (tabitems[img_index].children[0].children[1].children[1].children[0].children.length > 1) {
+                        window['chat_bot1'].children[1].textContent = tabitems[img_index].children[0].children[1].children[1].children[0].textContent;
                     } else {
                         window['chat_bot1'].children[1].textContent = '';
                     }                              
@@ -275,7 +253,40 @@ start_work = """async() => {
     return false;
 }"""
 
+space_ids = {
+            "spaces/stabilityai/stable-diffusion":"Stable Diffusion 2.1",
+            # "spaces/runwayml/stable-diffusion-v1-5":"Stable Diffusion 1.5",
+            # "spaces/stabilityai/stable-diffusion-1":"Stable Diffusion 1.0",
+            }
 
+tab_actions = []
+tab_titles = []
+
+for space_id in space_ids.keys():
+    print(space_id, space_ids[space_id])
+    try:
+        tab = gr.Interface.load(space_id)
+        tab_actions.append(tab)
+        tab_titles.append(space_ids[space_id])
+    except Exception as e:
+        logger.info(f"load_fail__{space_id}_{e}")
+        
+def chat(api, input0, input1, chat_radio, chat_history):
+    out_chat = []
+    if chat_history != '':
+        out_chat = json.loads(chat_history)
+    logger.info(f"out_chat_: {len(out_chat)} / {chat_radio}")
+    if chat_radio == "Talk to chatGPT":
+        response = get_response_from_chatgpt(api, input0)
+        # response = get_response_from_microsoft(input0)
+        # response = get_response_from_skywork(input0)
+        out_chat.append((input0, response))
+        chat_history = json.dumps(out_chat)
+        return api, out_chat, input1, chat_history
+    else:
+        prompt_en = getTextTrans(input0, source='zh', target='en') + f',{random.randint(0,sys.maxsize)}'
+        return api, out_chat, prompt_en, chat_history
+        
 with gr.Blocks(title='Talk to chatGPT') as demo:
     gr.HTML("<p>You can duplicating this space and use your own session token: <a style='display:inline-block' href='https://huggingface.co/spaces/yizhangliu/chatGPT?duplicate=true'><img src='https://img.shields.io/badge/-Duplicate%20Space-blue?labelColor=white&style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAP5JREFUOE+lk7FqAkEURY+ltunEgFXS2sZGIbXfEPdLlnxJyDdYB62sbbUKpLbVNhyYFzbrrA74YJlh9r079973psed0cvUD4A+4HoCjsA85X0Dfn/RBLBgBDxnQPfAEJgBY+A9gALA4tcbamSzS4xq4FOQAJgCDwV2CPKV8tZAJcAjMMkUe1vX+U+SMhfAJEHasQIWmXNN3abzDwHUrgcRGmYcgKe0bxrblHEB4E/pndMazNpSZGcsZdBlYJcEL9Afo75molJyM2FxmPgmgPqlWNLGfwZGG6UiyEvLzHYDmoPkDDiNm9JR9uboiONcBXrpY1qmgs21x1QwyZcpvxt9NS09PlsPAAAAAElFTkSuQmCC&logoWidth=14' alt='Duplicate Space'></a></p>")
     gr.HTML("<p> Instruction on how to get session token can be seen in video <a style='display:inline-block' href='https://www.youtube.com/watch?v=TdNSj_qgdFk'><font style='color:blue;weight:bold;'>here</font></a>. Add your session token by going to settings and add under secrets. </p>")
@@ -316,3 +327,4 @@ with gr.Blocks(title='Talk to chatGPT') as demo:
            tab_img = gr.TabbedInterface(tab_actions, tab_titles)             
 
 demo.launch(debug = True)
+
