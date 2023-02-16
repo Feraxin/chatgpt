@@ -1,11 +1,13 @@
 from pyChatGPT import ChatGPT
+import openai
 import gradio as gr
 import os, sys, json
 from loguru import logger
 import paddlehub as hub
 import random
 
-    
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
 language_translation_model = hub.Module(directory=f'./baidu_translate')
 def getTextTrans(text, source='zh', target='en'):
     def is_chinese(string):
@@ -32,14 +34,14 @@ def get_api():
       api = ChatGPT(session_token)
       # api.refresh_auth()
     except Exception as e:
-      print(f'get_api_error:', e)
+      logger.info(f'get_api_error: {e}')
       api = None
     return api
-
   
 def get_response_from_chatgpt(api, text):
     if api is None:
-        return "Openai said: I'm too tired. Let me lie down for a few days. If you like, you can visit my home."
+        # return "Sorry, I'm busy. Try again later.(1)"
+        return "Openai said: I'm too tired. Let me lie down for a few days. If you like, you can visit my home(1)."
     try:
       resp = api.send_message(text)    
       # api.refresh_auth()
@@ -50,9 +52,37 @@ def get_response_from_chatgpt(api, text):
       # logger.info(f"response_: {response}")
       logger.info(f"conversation_id_: [{conversation_id}] / parent_id: [{parent_id}]")  
     except:
-      response = "Openai said: I'm so tired. Let me lie down for a few days. If you like, you can visit my home."
+      # response = "Sorry, I'm busy. Try again later.(2)"
+      response = "Openai said: I'm so tired. Let me lie down for a few days. If you like, you can visit my home(2)."
     return response
 
+def get_response_from_openai(input, history):
+    def openai_create(prompt):
+        # no chatgpt, and from gpt-3
+        response = openai.Completion.create(
+            model="text-davinci-003",
+            prompt=prompt,
+            temperature=0.9,
+            max_tokens=2048,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0.6,
+            stop=[" Human:", " AI:"]
+        )
+        ret = response.choices[0].text
+        if ret == '':
+            ret = "Openai said: I'm too tired. Let me lie down for a few days. If you like, you can visit my home(3)."
+        
+        return ret
+    
+    history = history or []
+    his= [tuple(item) for item in history]
+    s = list(sum(his, ()))
+    s.append(input)
+    inp = ' '.join(s)
+    output = openai_create(inp)
+    return output
+    
 start_work = """async() => {
     function isMobile() {
         try {
@@ -82,18 +112,26 @@ start_work = """async() => {
       } else {
             valueSetter.call(element, value);
       }
+      element.dispatchEvent(new Event('input', { bubbles: true }));
     }
     function save_conversation(chatbot) {        
         var conversations = new Array();
+        var conversations_noimg = new Array();
         for (var i = 0; i < chatbot.children.length; i++) {
-            conversations[i] = chatbot.children[i].innerHTML;
+            innerHTML = chatbot.children[i].innerHTML;
+            conversations.push(innerHTML);
+            if (innerHTML.indexOf("<img ") == -1) {
+                conversations_noimg.push(innerHTML);
+            }
         }
         var json_str = JSON.stringify(conversations);
+        setNativeValue(window['chat_his'], JSON.stringify(conversations_noimg));
         localStorage.setItem('chatgpt_conversations', json_str);
     }
     function load_conversation(chatbot) {
         var json_str = localStorage.getItem('chatgpt_conversations');
         if (json_str) {
+            var conversations_noimg = new Array();
             conversations = JSON.parse(json_str);
             for (var i = 0; i < conversations.length; i++) {
                 var new_div = document.createElement("div");
@@ -108,9 +146,15 @@ start_work = """async() => {
                         new_div.style.padding = "0.2rem"; 
                     }                
                 }
-                new_div.innerHTML = conversations[i];
+                innerHTML = conversations[i];
+                new_div.innerHTML = innerHTML;
                 chatbot.appendChild(new_div);
+                
+                if (innerHTML.indexOf("<img ") == -1) {
+                    conversations_noimg.push(innerHTML);
+                }                
             }
+            setNativeValue(window['chat_his'], JSON.stringify(conversations_noimg));
         }
     }
     var gradioEl = document.querySelector('body > gradio-app').shadowRoot;
@@ -128,7 +172,8 @@ start_work = """async() => {
         page2.style.display = "block";
         window['div_count'] = 0;
         window['chat_bot'] = window['gradioEl'].querySelectorAll('#chat_bot')[0];
-        window['chat_bot1'] = window['gradioEl'].querySelectorAll('#chat_bot1')[0];   
+        window['chat_bot1'] = window['gradioEl'].querySelectorAll('#chat_bot1')[0];  
+        window['chat_his'] = window['gradioEl'].querySelectorAll('#chat_history')[0].querySelectorAll('textarea')[0];
         chat_row = window['gradioEl'].querySelectorAll('#chat_row')[0]; 
         prompt_row = window['gradioEl'].querySelectorAll('#prompt_row')[0]; 
         window['chat_bot1'].children[1].textContent = '';
@@ -203,7 +248,6 @@ start_work = """async() => {
                             for (var i = 0; i < tabitems.length; i++) {   
                                 inputText = tabitems[i].children[0].children[1].children[0].querySelectorAll('.gr-text-input')[0];
                                 setNativeValue(inputText, text_value);
-                                inputText.dispatchEvent(new Event('input', { bubbles: true }));
                             }                            
                             setTimeout(function() {
                                 btns = window['gradioEl'].querySelectorAll('button');
@@ -222,7 +266,7 @@ start_work = """async() => {
                             var user_div = document.createElement("div");
                             user_div.className = "px-3 py-2 rounded-[22px] rounded-br-none text-white text-sm chat-message svelte-rct66g";
                             user_div.style.backgroundColor = "#16a34a"; 
-                            user_div.innerHTML = "<p>" + text0.value + "</p>";
+                            user_div.innerHTML = "<p>" + text0.value + "</p><img ></img>";
                             window['chat_bot1'].children[2].children[0].appendChild(user_div);
                             var bot_div = document.createElement("div");
                             bot_div.className = "px-3 py-2 rounded-[22px] rounded-bl-none place-self-start text-white text-sm chat-message svelte-rct66g";
@@ -273,23 +317,29 @@ for space_id in space_ids.keys():
         
 def chat(api, input0, input1, chat_radio, chat_history):
     out_chat = []
-    if chat_history != '':
-        out_chat = json.loads(chat_history)
-    logger.info(f"out_chat_: {len(out_chat)} / {chat_radio}")
+    chat_history = chat_history.replace('<p>', '').replace('</p>', '')
+    if chat_history != '':        
+        out_chat_1 = json.loads(chat_history)
+        for i in range(int(len(out_chat_1)/2)):
+            out_chat.append([out_chat_1[2*i], out_chat_1[2*i+1]])            
+
+    # logger.info(f"out_chat_: {len(out_chat)} / {chat_radio}")
     if chat_radio == "Talk to chatGPT":
-        response = get_response_from_chatgpt(api, input0)
+        # response = get_response_from_chatgpt(api, input0)
         # response = get_response_from_microsoft(input0)
         # response = get_response_from_skywork(input0)
+        response = get_response_from_openai(input0, out_chat)
         out_chat.append((input0, response))
-        chat_history = json.dumps(out_chat)
-        return api, out_chat, input1, chat_history
+        # logger.info(f'liuyz_5___{out_chat}__')
+        return api, out_chat, input1
     else:
         prompt_en = getTextTrans(input0, source='zh', target='en') + f',{random.randint(0,sys.maxsize)}'
-        return api, out_chat, prompt_en, chat_history
+        return api, out_chat, prompt_en
         
-with gr.Blocks(title='Talk to chatGPT') as demo:
-    gr.HTML("<p>You can duplicating this space and use your own session token: <a style='display:inline-block' href='https://huggingface.co/spaces/yizhangliu/chatGPT?duplicate=true'><img src='https://img.shields.io/badge/-Duplicate%20Space-blue?labelColor=white&style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAP5JREFUOE+lk7FqAkEURY+ltunEgFXS2sZGIbXfEPdLlnxJyDdYB62sbbUKpLbVNhyYFzbrrA74YJlh9r079973psed0cvUD4A+4HoCjsA85X0Dfn/RBLBgBDxnQPfAEJgBY+A9gALA4tcbamSzS4xq4FOQAJgCDwV2CPKV8tZAJcAjMMkUe1vX+U+SMhfAJEHasQIWmXNN3abzDwHUrgcRGmYcgKe0bxrblHEB4E/pndMazNpSZGcsZdBlYJcEL9Afo75molJyM2FxmPgmgPqlWNLGfwZGG6UiyEvLzHYDmoPkDDiNm9JR9uboiONcBXrpY1qmgs21x1QwyZcpvxt9NS09PlsPAAAAAElFTkSuQmCC&logoWidth=14' alt='Duplicate Space'></a></p>")
-    gr.HTML("<p> Instruction on how to get session token can be seen in video <a style='display:inline-block' href='https://www.youtube.com/watch?v=TdNSj_qgdFk'><font style='color:blue;weight:bold;'>here</font></a>. Add your session token by going to settings and add under secrets. </p>")
+with gr.Blocks(title='Talk to chatGPT') as demo:    
+    with gr.Group(elem_id="page_0", visible=True) as page_0:
+        gr.HTML("<p>You can duplicating this space and use your own session token: <a style='display:inline-block' href='https://huggingface.co/spaces/yizhangliu/chatGPT?duplicate=true'><img src='https://img.shields.io/badge/-Duplicate%20Space-blue?labelColor=white&style=flat&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAP5JREFUOE+lk7FqAkEURY+ltunEgFXS2sZGIbXfEPdLlnxJyDdYB62sbbUKpLbVNhyYFzbrrA74YJlh9r079973psed0cvUD4A+4HoCjsA85X0Dfn/RBLBgBDxnQPfAEJgBY+A9gALA4tcbamSzS4xq4FOQAJgCDwV2CPKV8tZAJcAjMMkUe1vX+U+SMhfAJEHasQIWmXNN3abzDwHUrgcRGmYcgKe0bxrblHEB4E/pndMazNpSZGcsZdBlYJcEL9Afo75molJyM2FxmPgmgPqlWNLGfwZGG6UiyEvLzHYDmoPkDDiNm9JR9uboiONcBXrpY1qmgs21x1QwyZcpvxt9NS09PlsPAAAAAElFTkSuQmCC&logoWidth=14' alt='Duplicate Space'></a></p>")
+        gr.HTML("<p> Instruction on how to get session token can be seen in video <a style='display:inline-block' href='https://www.youtube.com/watch?v=TdNSj_qgdFk'><font style='color:blue;weight:bold;'>here</font></a>. Add your session token by going to settings and add under secrets. </p>")
     with gr.Group(elem_id="page_1", visible=True) as page_1:
         with gr.Box():            
             with gr.Row():
@@ -303,8 +353,8 @@ with gr.Blocks(title='Talk to chatGPT') as demo:
         with gr.Row(elem_id="prompt_row"):
             prompt_input0 = gr.Textbox(lines=2, label="prompt",show_label=False)
             prompt_input1 = gr.Textbox(lines=4, label="prompt", visible=False)
-            chat_history = gr.Textbox(lines=4, label="prompt", visible=False)
-            chat_radio = gr.Radio(["Talk to chatGPT", "Text to Image"], elem_id="chat_radio",value="Talk to chatGPT", show_label=False)
+            chat_history = gr.Textbox(lines=4, label="prompt", elem_id="chat_history", visible=False)
+            chat_radio = gr.Radio(["Talk to chatGPT", "Text to Image"], elem_id="chat_radio",value="Talk to chatGPT", show_label=False, visible=True)
         with gr.Row(elem_id="btns_row"):
             with gr.Column(id="submit_col"):
                 submit_btn = gr.Button(value = "submit",elem_id="submit-btn").style(
@@ -321,10 +371,9 @@ with gr.Blocks(title='Talk to chatGPT') as demo:
             api = gr.State(value=get_api())
             submit_btn.click(fn=chat, 
                              inputs=[api, prompt_input0, prompt_input1, chat_radio, chat_history], 
-                             outputs=[api, chatbot, prompt_input1, chat_history],
+                             outputs=[api, chatbot, prompt_input1],
                             )
         with gr.Row(elem_id='tab_img', visible=False).style(height=5):
            tab_img = gr.TabbedInterface(tab_actions, tab_titles)             
 
 demo.launch(debug = True)
-
