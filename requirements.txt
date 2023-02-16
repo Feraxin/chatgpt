@@ -1,4 +1,6 @@
 pyChatGPT
+openai
 loguru
 paddlepaddle==2.3.2
 paddlehub
+gradio==3.12.0
