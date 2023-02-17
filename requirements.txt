@@ -3,4 +3,9 @@ openai
 loguru
 paddlepaddle==2.3.2
 paddlehub
+# transformers
+# torch
+tensorflow
+regex
+boto3
 gradio==3.12.0
