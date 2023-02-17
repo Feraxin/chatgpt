@@ -5,6 +5,7 @@ import os, sys, json
 from loguru import logger
 import paddlehub as hub
 import random
+from encoder import get_encoder
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -56,23 +57,31 @@ def get_response_from_chatgpt(api, text):
       response = "Openai said: I'm so tired. Let me lie down for a few days. If you like, you can visit my home(2)."
     return response
 
+token_encoder = get_encoder()
+total_tokens = 4096
+max_output_tokens = 1024
+max_input_tokens = total_tokens - max_output_tokens
+
 def get_response_from_openai(input, history):
     def openai_create(prompt):
         # no chatgpt, and from gpt-3
-        response = openai.Completion.create(
-            model="text-davinci-003",
-            prompt=prompt,
-            temperature=0.9,
-            max_tokens=2048,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0.6,
-            stop=[" Human:", " AI:"]
-        )
-        ret = response.choices[0].text
-        if ret == '':
-            ret = "Openai said: I'm too tired. Let me lie down for a few days. If you like, you can visit my home(3)."
-        
+        try:
+            response = openai.Completion.create(
+                model="text-davinci-003",
+                prompt=prompt,
+                temperature=0.9,
+                max_tokens=max_output_tokens,
+                top_p=1,
+                frequency_penalty=0,
+                presence_penalty=0.6,
+                stop=[" Human:", " AI:"]
+            )
+            ret = response.choices[0].text
+            if ret == '':
+                ret = "Openai said: I'm too tired. Let me lie down for a few days. If you like, you can visit my home(3)."
+        except Exception as e:
+            ret = "Openai said: I'm too tired. Let me lie down for a few days. If you like, you can visit my home(4)."
+            
         return ret
     
     history = history or []
@@ -80,6 +89,15 @@ def get_response_from_openai(input, history):
     s = list(sum(his, ()))
     s.append(input)
     inp = ' '.join(s)
+    tokens = token_encoder.encode(inp)
+    if len(tokens) > max_input_tokens:
+        new_tokens = tokens[-max_input_tokens:] 
+        inp = token_encoder.decode(new_tokens)
+    #     tokens_1 = token_encoder.encode(inp)  
+    #     logger.info(f"tokens_len[1]__{len(tokens)}__{len(new_tokens)}__{len(tokens_1)}")
+    # else:
+    #     logger.info(f"tokens_len[0]__{len(tokens)}")
+        
     output = openai_create(inp)
     return output
     
@@ -326,8 +344,6 @@ def chat(api, input0, input1, chat_radio, chat_history):
     # logger.info(f"out_chat_: {len(out_chat)} / {chat_radio}")
     if chat_radio == "Talk to chatGPT":
         # response = get_response_from_chatgpt(api, input0)
-        # response = get_response_from_microsoft(input0)
-        # response = get_response_from_skywork(input0)
         response = get_response_from_openai(input0, out_chat)
         out_chat.append((input0, response))
         # logger.info(f'liuyz_5___{out_chat}__')
