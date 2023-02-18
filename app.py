@@ -123,7 +123,13 @@ start_work = """async() => {
 	  }
 	  return clientHeight;
 	}
- 
+    function img_click(img) {
+        this_width = parseInt(img.style.width) + 20;
+        if (this_width > 100) {
+            this_width = 20;
+        }
+        img.style.width = this_width + "%";     
+    } 
     function setNativeValue(element, value) {
       const valueSetter = Object.getOwnPropertyDescriptor(element.__proto__, 'value').set;
       const prototype = Object.getPrototypeOf(element);
@@ -164,7 +170,10 @@ start_work = """async() => {
                     new_div.className = "px-3 py-2 rounded-[22px] rounded-bl-none place-self-start text-white text-sm chat-message svelte-rct66g";
                     new_div.style.backgroundColor = "#2563eb"; 
                     if (conversations[i].indexOf("<img ") == 0) { 
-                        new_div.style.width = "80%"; 
+                        new_div.style.width = "20%"; 
+                        new_div.onclick = function(e){
+                            img_click(this);
+                        }                        
                         new_div.style.padding = "0.2rem"; 
                     }                
                 }
@@ -293,7 +302,10 @@ start_work = """async() => {
                             var bot_div = document.createElement("div");
                             bot_div.className = "px-3 py-2 rounded-[22px] rounded-bl-none place-self-start text-white text-sm chat-message svelte-rct66g";
                             bot_div.style.backgroundColor = "#2563eb"; 
-                            bot_div.style.width = "80%"; 
+                            bot_div.style.width = "40%"; 
+                            bot_div.onclick = function(e){
+                                img_click(this);
+                            }                            
                             bot_div.style.padding = "0.2rem"; 
                             bot_div.appendChild(imgs[0].cloneNode(true));
                             window['chat_bot1'].children[2].children[0].appendChild(bot_div);
