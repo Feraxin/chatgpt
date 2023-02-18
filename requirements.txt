@@ -9,3 +9,4 @@ tensorflow
 regex
 boto3
 gradio==3.12.0
+tencentcloud-sdk-python
