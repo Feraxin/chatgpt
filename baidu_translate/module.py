@@ -1,5 +1,5 @@
 import argparse
-import random
+import random, os
 from hashlib import md5
 from typing import Optional
 
@@ -28,13 +28,15 @@ class BaiduTranslate:
       :param appid: appid for requesting Baidu translation service.
       :param appkey: appkey for requesting Baidu translation service.
       """
+        appid = os.environ.get('baidu_translate_appid')
+        appkey = os.environ.get('baidu_translate_appkey')
         # Set your own appid/appkey.
-        if appid == None:
-            self.appid = '20201015000580007'
+        if appid is None:
+            self.appid = ''
         else:
             self.appid = appid
         if appkey is None:
-            self.appkey = 'IFJB6jBORFuMmVGDRud1'
+            self.appkey = ''
         else:
             self.appkey = appkey
         self.url = 'http://api.fanyi.baidu.com/api/trans/vip/translate'
