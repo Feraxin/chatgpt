@@ -1,6 +1,8 @@
+import os, sys, json
+os.system("pip install gradio==3.19.1")
 import openai
 import gradio as gr
-import os, sys, json
+
 from loguru import logger
 import paddlehub as hub
 import random
