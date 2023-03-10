@@ -1,4 +1,3 @@
-from pyChatGPT import ChatGPT
 import openai
 import gradio as gr
 import os, sys, json
