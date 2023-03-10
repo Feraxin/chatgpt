@@ -8,5 +8,5 @@ paddlehub
 tensorflow
 regex
 boto3
-gradio==3.12.0
+gradio==3.19.1
 tencentcloud-sdk-python
