@@ -360,6 +360,7 @@ def set_openai_api_key(api_key):
         openai.api_key = api_key
 
 def get_response_from_openai(input, chat_history, model_radio):
+    error_1 = 'You exceeded your current quota, please check your plan and billing details.'
     def openai_create(input_list, model_radio):
         try:
             # print(f'input_list={input_list}')
@@ -370,6 +371,9 @@ def get_response_from_openai(input, chat_history, model_radio):
                 out_prompt = 'AI:'
             for i in range(input_list_len):
                 input = input_list[input_list_len-i-1].replace("<br>", '\n\n')
+                if input.startswith("Openai said:"):
+                    input = "☝:"
+    
                 if input.startswith("☝:"):
                     if model_radio == 'GPT-3.0':
                         out_prompt = input.replace("☝:", "AI:") + '\n' + out_prompt
@@ -418,18 +422,16 @@ def get_response_from_openai(input, chat_history, model_radio):
                 ret = ret.replace("\n\n", '') 
             ret = ret.replace('\n', '<br>')  
             if ret == '':
-                ret = f"Openai said: I'm too tired(1)."   
+                ret = f"Openai said: I'm too tired."   
             return ret, response.usage                           
         except Exception as e:
             logger.info(f"openai_create_error__{e}")
-            ret = f"Openai said: I'm too tired(2)."
+            ret = f"Openai said: {e} Perhaps enter your OpenAI API key."
             return ret, {"completion_tokens": -1, "prompt_tokens": -1, "total_tokens": -1}
     
     print(f'chat_history = {chat_history}')
     chat_history_list = []
     chat_history = chat_history.replace("<p>", "").replace("</p>", "")
-    chat_history = chat_history.replace("Openai said: I'm too tired(1).", "")
-    chat_history = chat_history.replace("Openai said: I'm too tired(2).", "")    
     if chat_history != '':        
         chat_history_list = json.loads(chat_history)
     chat_history_list.append(f'☟:{input}')
